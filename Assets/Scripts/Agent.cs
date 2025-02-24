@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class Agent : MonoBehaviour
 {
     public int keys = 0;
-    public float speed = 15.0f;
+    public float speed = 20.0f;
     // public GameObject door;
 
     public Text keyAmount;
