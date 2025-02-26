@@ -1,90 +1,102 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Agent : MonoBehaviour
 {
     public int keys = 0;
-    public float speed = 20.0f;
-    // public GameObject door;
-
+    public float speed = 5.0f;
     public Text keyAmount;
     public Text youWin;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+    private bool isAI = false;
+    private List<Room> path;
+    private int pathIndex = 0;
+    private Room[,] rooms;
+    private Room currentRoom;
+    private Room doorRoom;
+
     void Start()
     {
-        
+        rooms = FindObjectOfType<GenerateMaze>().GetRooms();
+        currentRoom = GetCurrentRoom();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if(Input.GetKey(KeyCode.LeftArrow))
+        if (Input.GetKeyDown(KeyCode.Q))  
         {
-            transform.Translate(-speed * Time.deltaTime, 0, 0);
+            isAI = !isAI; // Toggle AI mode on/off
+            if (isAI)
+            {
+                StartAI();  // Start AI pathfinding
+            }
         }
-        if(Input.GetKey(KeyCode.RightArrow))
+        if (!isAI)
         {
-             transform.Translate(speed * Time.deltaTime, 0, 0);
+            HandleUserInput();
         }
-        if(Input.GetKey(KeyCode.UpArrow))
+        else if (path != null && pathIndex < path.Count)
         {
-            transform.Translate(0, speed * Time.deltaTime, 0);
+            MoveToNextRoom();
         }
-        if(Input.GetKey(KeyCode.DownArrow))
-        {
-            transform.Translate(0, -speed * Time.deltaTime, 0);
-        }
-
-        // if(keys == 3)
-        // {
-        //     Destroy(door);
-        // }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    public void StartAI()
     {
-        if(collision.gameObject.tag == "Keys")
+        isAI = true;
+        currentRoom = GetCurrentRoom();
+        doorRoom = FindObjectOfType<GenerateMaze>().GetDoorRoom();
+        path = Pathfinding.FindPath(currentRoom, doorRoom, rooms, 10, 10);
+        pathIndex = 0;
+    }
+
+    private void MoveToNextRoom()
+    {
+        if (pathIndex >= path.Count)
         {
-            keys++;
-            keyAmount.text = "Keys: " + keys;
-            Destroy(collision.gameObject);
+            isAI = false;
+            return;
         }
 
-        if(collision.gameObject.tag == "Door") // silver
-        {
-            // Destroy(collision.gameObject);
-            // youWin.text = "YOU WIN!!!";
-            Debug.Log("You Win!!!");
-        }
+        Room targetRoom = path[pathIndex];
+        Vector3 targetPosition = targetRoom.transform.position;
+        transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
 
-        if(collision.gameObject.tag == "Enemies")
+        if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            pathIndex++;
         }
+    }
 
-        if(collision.gameObject.tag == "Walls")
+    private Room GetCurrentRoom()
+    {
+        foreach (Room room in rooms)
         {
-            if(Input.GetKey(KeyCode.LeftArrow))
-            {
-                transform.Translate(speed * Time.deltaTime, 0, 0);
-                Debug.Log("Left");
-            }
-            if(Input.GetKey(KeyCode.RightArrow))
-            {
-                transform.Translate(-speed * Time.deltaTime, 0, 0);
-                Debug.Log("Right");
-            }
-            if(Input.GetKey(KeyCode.UpArrow))
-            {
-                transform.Translate(0, -speed * Time.deltaTime, 0);
-                Debug.Log("Up");
-            }
-            if(Input.GetKey(KeyCode.DownArrow))
-            {
-                transform.Translate(0, speed * Time.deltaTime, 0);
-                Debug.Log("Down");
-            }
+            if (Vector3.Distance(transform.position, room.transform.position) < 0.5f)
+                return room;
         }
+        return null;
+    }
+    private void HandleUserInput()
+    {
+    if(Input.GetKey(KeyCode.LeftArrow))
+    {
+        transform.Translate(-speed * Time.deltaTime, 0, 0);
+    }
+    if(Input.GetKey(KeyCode.RightArrow))
+    {
+        transform.Translate(speed * Time.deltaTime, 0, 0);
+    }
+    if(Input.GetKey(KeyCode.UpArrow))
+    {
+        transform.Translate(0, speed * Time.deltaTime, 0);
+    }
+    if(Input.GetKey(KeyCode.DownArrow))
+    {
+        transform.Translate(0, -speed * Time.deltaTime, 0);
+    }
     }
 }
