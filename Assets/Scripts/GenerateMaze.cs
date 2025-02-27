@@ -258,6 +258,12 @@ public class GenerateMaze : MonoBehaviour
             if(!generating)
             {
                 CreateMaze();
+                GameObject agent = GameObject.Find("Agent");
+                if (agent != null)
+                {
+                    Vector3 new_pos = new Vector3(0f, 0f, 0f);
+                    agent.transform.position = new_pos;
+                }
             }
         }
     }
