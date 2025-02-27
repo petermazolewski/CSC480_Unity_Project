@@ -261,4 +261,14 @@ public class GenerateMaze : MonoBehaviour
             }
         }
     }
+    public Room[,] GetRooms()
+    {
+    return rooms;
+    }
+    public Room GetDoorRoom()
+    {
+    return rooms[numX - 1, numY - 1]; // Assuming the door is always at the last room
+    }
+
+
 }

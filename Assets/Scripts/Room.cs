@@ -52,4 +52,22 @@ public class Room : MonoBehaviour
         dirflags[dir] = flag;
         SetActive(dir, flag);
     }
+
+    public List<Room> GetConnectedRooms(Room[,] rooms, int numX, int numY)
+    {
+    List<Room> neighbors = new List<Room>();
+
+    if (!dirflags[Directions.TOP] && Index.y < numY - 1)
+        neighbors.Add(rooms[Index.x, Index.y + 1]);
+    if (!dirflags[Directions.RIGHT] && Index.x < numX - 1)
+        neighbors.Add(rooms[Index.x + 1, Index.y]);
+    if (!dirflags[Directions.BOTTOM] && Index.y > 0)
+        neighbors.Add(rooms[Index.x, Index.y - 1]);
+    if (!dirflags[Directions.LEFT] && Index.x > 0)
+        neighbors.Add(rooms[Index.x - 1, Index.y]);
+
+    return neighbors;
+    }
+
+
 }
