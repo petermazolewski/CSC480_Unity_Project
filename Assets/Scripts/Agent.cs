@@ -8,6 +8,8 @@ public class Agent : MonoBehaviour
     public float speed = 20.0f;
     // public GameObject door;
 
+    public int requiredKeys = 3; //number of keys required to open the door
+
     public Text keyAmount;
     public Text youWin;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -46,8 +48,9 @@ public class Agent : MonoBehaviour
     {
         if(collision.gameObject.tag == "Keys")
         {
+            Debug.Log("Key HIT!!!");
             keys++;
-            keyAmount.text = "Keys: " + keys;
+            // keyAmount.text = "Keys: " + keys;
             Destroy(collision.gameObject);
         }
 
@@ -55,7 +58,16 @@ public class Agent : MonoBehaviour
         {
             // Destroy(collision.gameObject);
             // youWin.text = "YOU WIN!!!";
-            Debug.Log("You Win!!!");
+            if (keys >= requiredKeys)
+            {
+                Destroy(collision.gameObject);
+                // youWin.text = "YOU WIN!!!";
+                Debug.Log("YOU WIN!!!");
+            }
+            else
+            {
+                Debug.Log("Collect more keys to open the door!");
+            }
         }
 
         if(collision.gameObject.tag == "Enemies")
