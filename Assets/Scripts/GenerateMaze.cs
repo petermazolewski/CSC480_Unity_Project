@@ -17,6 +17,10 @@ public class GenerateMaze : MonoBehaviour
 
     private GameObject spawnedDoor; //store door reference
 
+     private List<GameObject> spawnedKeys = new List<GameObject>(); // Store keys
+
+
+
     // The grid
     Room[,] rooms = null;
 
@@ -226,14 +230,25 @@ public class GenerateMaze : MonoBehaviour
         Vector3 doorPosition = rooms[numX - 1, numY - 1].transform.position;
         doorPosition.x += (roomWidth - 1)/ 2;
         Instantiate(door, doorPosition, Quaternion.identity);
-        //despawnkeys();
+        DespawnKeys();
         SpawnKeys();
 
         stack.Push(rooms[0, 0]);
 
         StartCoroutine(Coroutine_Generate());
     }
-    //private void despawnKeys()
+    private void DespawnKeys()
+    {
+        foreach (GameObject key in spawnedKeys)
+        {
+            if (key != null)
+            {
+                Destroy(key);
+            }
+        }
+        spawnedKeys.Clear();
+    }
+
 
     private void SpawnKeys()
     {
@@ -250,7 +265,9 @@ public class GenerateMaze : MonoBehaviour
 
             usedPositions.Add(new Vector2Int(x, y));
             Vector3 keyPosition = rooms[x, y].transform.position;
-            Instantiate(keyPrefab, keyPosition, Quaternion.identity);
+            GameObject newKey = Instantiate(keyPrefab, keyPosition, Quaternion.identity);
+            spawnedKeys.Add(newKey);
+            //Instantiate(keyPrefab, keyPosition, Quaternion.identity);
         }
     }
 
