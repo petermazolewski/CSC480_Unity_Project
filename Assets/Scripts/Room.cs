@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Room : MonoBehaviour
@@ -14,25 +13,26 @@ public class Room : MonoBehaviour
     }
 
     [SerializeField]
-    GameObject topWall;
+    private GameObject topWall;
     [SerializeField]
-    GameObject rightWall;
+    private GameObject rightWall;
     [SerializeField]
-    GameObject bottomWall;
+    private GameObject bottomWall;
     [SerializeField]
-    GameObject leftWall;
+    private GameObject leftWall;
 
-    Dictionary<Directions, GameObject> walls = new Dictionary<Directions, GameObject>();
+    [SerializeField]
+    private GameObject keyPrefab; // Reference to the key prefab
 
-    public Vector2Int Index
-    {
-        get;
-        set;
-    }
+    private GameObject spawnedKey; // Track spawned key
+
+    private Dictionary<Directions, GameObject> walls = new Dictionary<Directions, GameObject>();
+
+    public Vector2Int Index { get; set; }
 
     public bool visited { get; set; } = false;
 
-    Dictionary<Directions, bool> dirflags = new Dictionary<Directions, bool>();
+    private Dictionary<Directions, bool> dirflags = new Dictionary<Directions, bool>();
 
     private void Start()
     {
@@ -44,13 +44,34 @@ public class Room : MonoBehaviour
 
     private void SetActive(Directions dir, bool flag)
     {
-        walls[dir].SetActive(flag);
+        if (walls.ContainsKey(dir))
+        {
+            walls[dir].SetActive(flag);
+        }
     }
 
     public void SetDirFlag(Directions dir, bool flag)
     {
         dirflags[dir] = flag;
         SetActive(dir, flag);
+    }
+
+
+    public void SpawnKey()
+    {
+        if (keyPrefab != null && spawnedKey == null)
+        {
+            spawnedKey = Instantiate(keyPrefab, transform.position, Quaternion.identity, transform);
+        }
+    }
+
+    public void RemoveKey()
+    {
+        if (spawnedKey != null)
+        {
+            Destroy(spawnedKey);
+            spawnedKey = null;
+        }
     }
 
     public List<Room> GetConnectedRooms(Room[,] rooms, int numX, int numY)
@@ -68,6 +89,7 @@ public class Room : MonoBehaviour
 
     return neighbors;
     }
+
 
 
 }

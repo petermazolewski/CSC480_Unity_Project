@@ -8,6 +8,18 @@ public class GenerateMaze : MonoBehaviour
     [SerializeField]
     GameObject roomPrefab;
     public GameObject door;
+    
+    public GameObject keyPrefab; //key prefab
+
+    public int totalKeysRequired = 3; //number of keys
+
+    private int keysCollected = 0; 
+
+    private GameObject spawnedDoor; //store door reference
+
+     private List<GameObject> spawnedKeys = new List<GameObject>(); // Store keys
+
+
 
     // The grid
     Room[,] rooms = null;
@@ -52,6 +64,8 @@ public class GenerateMaze : MonoBehaviour
 
     private void Start()
     {
+        //keys = 0;
+        //keyAmount.txt = "Keys: " + keys; 
         GetRoomSize();
 
         rooms = new Room[numX, numY];
@@ -216,10 +230,54 @@ public class GenerateMaze : MonoBehaviour
         Vector3 doorPosition = rooms[numX - 1, numY - 1].transform.position;
         doorPosition.x += (roomWidth - 1)/ 2;
         Instantiate(door, doorPosition, Quaternion.identity);
+        DespawnKeys();
+        SpawnKeys();
 
         stack.Push(rooms[0, 0]);
 
         StartCoroutine(Coroutine_Generate());
+    }
+    private void DespawnKeys()
+    {
+        foreach (GameObject key in spawnedKeys)
+        {
+            if (key != null)
+            {
+                Destroy(key);
+            }
+        }
+        spawnedKeys.Clear();
+    }
+
+
+    private void SpawnKeys()
+    {
+        HashSet<Vector2Int> usedPositions = new HashSet<Vector2Int>();
+        for(int i = 0; i < totalKeysRequired; i++)
+        {
+            int x, y;
+            do
+            {
+                x = UnityEngine.Random.Range(0, numX);
+                y = UnityEngine.Random.Range(0, numY);
+            }
+            while(usedPositions.Contains(new Vector2Int(x, y)) || (x == 0 && y == 0)); // Avoid start position
+
+            usedPositions.Add(new Vector2Int(x, y));
+            Vector3 keyPosition = rooms[x, y].transform.position;
+            GameObject newKey = Instantiate(keyPrefab, keyPosition, Quaternion.identity);
+            spawnedKeys.Add(newKey);
+            //Instantiate(keyPrefab, keyPosition, Quaternion.identity);
+        }
+    }
+
+    public void CollectKey()
+    {
+        keysCollected++;
+        if (keysCollected >= totalKeysRequired && spawnedDoor != null)
+        {
+            spawnedDoor.SetActive(true); // Open the door
+        }
     }
 
     IEnumerator Coroutine_Generate()
@@ -267,6 +325,7 @@ public class GenerateMaze : MonoBehaviour
             }
         }
     }
+
     public Room[,] GetRooms()
     {
     return rooms;
