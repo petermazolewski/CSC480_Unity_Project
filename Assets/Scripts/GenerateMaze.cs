@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 
 public class GenerateMaze : MonoBehaviour
@@ -17,7 +18,7 @@ public class GenerateMaze : MonoBehaviour
 
     private GameObject spawnedDoor; //store door reference
 
-     private List<GameObject> spawnedKeys = new List<GameObject>(); // Store keys
+    private List<GameObject> spawnedKeys = new List<GameObject>(); // Store keys
 
 
 
@@ -83,6 +84,14 @@ public class GenerateMaze : MonoBehaviour
         }
 
         SetCamera();
+
+        CreateMaze();
+        GameObject agent = GameObject.Find("Agent");
+        if (agent != null)
+        {
+            Vector3 new_pos = new Vector3(0f, 0f, 0f);
+            agent.transform.position = new_pos;
+        }
     }
 
     private void RemoveRoomWall(int x, int y, Room.Directions dir)
@@ -313,16 +322,11 @@ public class GenerateMaze : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Space))
         {
-            if(!generating)
-            {
-                CreateMaze();
-                GameObject agent = GameObject.Find("Agent");
-                if (agent != null)
-                {
-                    Vector3 new_pos = new Vector3(0f, 0f, 0f);
-                    agent.transform.position = new_pos;
-                }
-            }
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            // if(!generating)
+            // {
+
+            // }
         }
     }
 
