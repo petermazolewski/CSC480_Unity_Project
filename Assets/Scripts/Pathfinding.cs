@@ -46,6 +46,37 @@ public class Pathfinding : MonoBehaviour
         return new List<Room>(); // Return empty list if no path found
     }
 
+    public static List<Room> FindPathBFS(Room startRoom, Room endRoom, Room[,] rooms, int numX, int numY)
+    {
+        Queue<Room> openSet = new Queue<Room>();
+        HashSet<Room> visited = new HashSet<Room>();
+        Dictionary<Room, Room> cameFrom = new Dictionary<Room, Room>();
+
+        openSet.Enqueue(startRoom);
+        visited.Add(startRoom);
+
+        while (openSet.Count > 0)
+        {
+            Room node = openSet.Dequeue();
+            if (node == endRoom)
+            {
+                return ReconstructPath(cameFrom, node);
+            }
+
+            foreach (Room neighbor in node.GetConnectedRooms(rooms, numX, numY))
+            {
+                if (visited.Contains(neighbor))
+                    continue;
+
+                openSet.Enqueue(neighbor);
+                visited.Add(neighbor);
+                cameFrom[neighbor] = node;
+            }
+        }
+
+        return new List<Room>();
+    }
+
     private static float Heuristic(Room a, Room b)
     {
         return Mathf.Abs(a.Index.x - b.Index.x) + Mathf.Abs(a.Index.y - b.Index.y);

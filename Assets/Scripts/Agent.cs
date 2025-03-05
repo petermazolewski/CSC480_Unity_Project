@@ -15,6 +15,7 @@ public class Agent : MonoBehaviour
     public Text keyAmount;
     public Text youWin;
 
+    private bool bfs = false;
     private bool isAI = false;
     private List<Room> path;
     private int pathIndex = 0;
@@ -29,7 +30,12 @@ public class Agent : MonoBehaviour
     }
 
     void Update()
-    {
+    {   
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            bfs = !bfs;
+        }
+
         if (Input.GetKeyDown(KeyCode.Q))  
         {
             isAI = !isAI; // Toggle AI mode on/off
@@ -38,6 +44,7 @@ public class Agent : MonoBehaviour
                 StartAI();  // Start AI pathfinding
             }
         }
+
         if (!isAI)
         {
             HandleUserInput();
@@ -53,7 +60,16 @@ public class Agent : MonoBehaviour
         isAI = true;
         currentRoom = GetCurrentRoom();
         doorRoom = FindObjectOfType<GenerateMaze>().GetDoorRoom();
-        path = Pathfinding.FindPath(currentRoom, doorRoom, rooms, 10, 10);
+
+        if (!bfs)
+        {
+            path = Pathfinding.FindPath(currentRoom, doorRoom, rooms, 10, 10);
+        }
+        else
+        {
+            path = Pathfinding.FindPathBFS(currentRoom, doorRoom, rooms, 10, 10);
+            Debug.Log("using bfs");
+        }
         pathIndex = 0;
     }
 
