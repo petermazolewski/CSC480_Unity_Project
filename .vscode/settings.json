@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "Maze Generation.sln"
+    "dotnet.defaultSolution": "CSC480_Unity_Project.sln"
 }
