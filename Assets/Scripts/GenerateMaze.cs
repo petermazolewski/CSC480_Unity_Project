@@ -315,6 +315,15 @@ public class GenerateMaze : MonoBehaviour
                     agent.keys = 0;
                     Vector3 new_pos = new Vector3(0f, 0f, 0f);
                     agent.transform.position = new_pos;
+                    agent.isAI = true;
+                }
+                GameObject playerObject = GameObject.Find("Agent");
+                Player player = playerObject.GetComponent<Player>();
+                if (player != null)
+                {
+                    player.keys = 0;
+                    // Vector3 new_pos = new Vector3(0f, 0f, 0f);
+                    // agent.transform.position = new_pos;
                 }
             }
         }

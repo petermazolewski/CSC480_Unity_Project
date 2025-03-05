@@ -16,7 +16,7 @@ public class Agent : MonoBehaviour
     public Text youWin;
 
     private bool bfs = false;
-    private bool isAI = false;
+    public bool isAI = false;
     private List<Room> path;
     private int pathIndex = 0;
     private Room[,] rooms;
@@ -38,7 +38,7 @@ public class Agent : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Q))  
         {
-            isAI = !isAI; // Toggle AI mode on/off
+            // isAI = !isAI; // Toggle AI mode on/off
             if (isAI)
             {
                 StartAI();  // Start AI pathfinding
@@ -47,7 +47,7 @@ public class Agent : MonoBehaviour
 
         if (!isAI)
         {
-            HandleUserInput();
+            // HandleUserInput();
         }
         else if (path != null && pathIndex < path.Count)
         {
