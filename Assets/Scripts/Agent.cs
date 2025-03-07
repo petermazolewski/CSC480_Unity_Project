@@ -73,6 +73,18 @@ public class Agent : MonoBehaviour
         pathIndex = 0;
     }
 
+    public void ResetAgent()
+    {
+        // Reset pathfinding state
+        path = null;
+        pathIndex = 0;
+        isAI = false;
+
+        // Reset agent's state
+        keys = 0;
+        transform.position = new Vector3(0f, 0f, 0f);
+    }
+
     private void MoveToNextRoom()
     {
         if (pathIndex >= path.Count)
