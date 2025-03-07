@@ -309,12 +309,23 @@ public class GenerateMaze : MonoBehaviour
             {
                 CreateMaze();
                 GameObject agentObject = GameObject.Find("Agent");
-                Agent agent = agentObject.GetComponent<Agent>();
-                if (agent != null)
+                if (agentObject != null)
                 {
-                    agent.keys = 0;
-                    Vector3 new_pos = new Vector3(0f, 0f, 0f);
-                    agent.transform.position = new_pos;
+                    Agent agent = agentObject.GetComponent<Agent>();
+                    if (agent != null)
+                    {
+                        agent.ResetAgent();
+                        agent.isAI = true;
+                    }
+                }
+                GameObject playerObject = GameObject.Find("Player");
+                if (playerObject != null)
+                {
+                    Player player = playerObject.GetComponent<Player>();
+                    if (player != null)
+                    {
+                        player.ResetPlayer();
+                    }
                 }
             }
         }
