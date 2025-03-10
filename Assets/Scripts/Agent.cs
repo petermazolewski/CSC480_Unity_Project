@@ -22,10 +22,12 @@ public class Agent : MonoBehaviour
     private Room[,] rooms;
     private Room currentRoom;
     private Room doorRoom;
+    private List<GameObject> keyObjects;
 
     void Start()
     {
         rooms = FindObjectOfType<GenerateMaze>().GetRooms();
+        keyObjects = FindObjectOfType<GenerateMaze>().GetSpawnedKeys();
         currentRoom = GetCurrentRoom();
     }
 
@@ -67,7 +69,7 @@ public class Agent : MonoBehaviour
         }
         else
         {
-            path = Pathfinding.FindPathBFS(currentRoom, doorRoom, rooms, 10, 10);
+            path = Pathfinding.FindPathBFS(currentRoom, doorRoom, rooms, keyObjects, 10, 10);
             Debug.Log("using bfs");
         }
         pathIndex = 0;
@@ -112,24 +114,25 @@ public class Agent : MonoBehaviour
         }
         return null;
     }
+
     private void HandleUserInput()
     {
-    if(Input.GetKey(KeyCode.LeftArrow))
-    {
-        transform.Translate(-speed * Time.deltaTime, 0, 0);
-    }
-    if(Input.GetKey(KeyCode.RightArrow))
-    {
-        transform.Translate(speed * Time.deltaTime, 0, 0);
-    }
-    if(Input.GetKey(KeyCode.UpArrow))
-    {
-        transform.Translate(0, speed * Time.deltaTime, 0);
-    }
-    if(Input.GetKey(KeyCode.DownArrow))
-    {
-        transform.Translate(0, -speed * Time.deltaTime, 0);
-    }
+        if(Input.GetKey(KeyCode.LeftArrow))
+        {
+            transform.Translate(-speed * Time.deltaTime, 0, 0);
+        }
+        if(Input.GetKey(KeyCode.RightArrow))
+        {
+            transform.Translate(speed * Time.deltaTime, 0, 0);
+        }
+        if(Input.GetKey(KeyCode.UpArrow))
+        {
+            transform.Translate(0, speed * Time.deltaTime, 0);
+        }
+        if(Input.GetKey(KeyCode.DownArrow))
+        {
+            transform.Translate(0, -speed * Time.deltaTime, 0);
+        }
     }
     
     private void OnCollisionEnter2D(Collision2D collision)

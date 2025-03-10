@@ -18,8 +18,6 @@ public class GenerateMaze : MonoBehaviour
 
     private List<GameObject> spawnedKeys = new List<GameObject>(); // Store keys
 
-
-
     // The grid
     Room[,] rooms = null;
 
@@ -333,12 +331,16 @@ public class GenerateMaze : MonoBehaviour
 
     public Room[,] GetRooms()
     {
-    return rooms;
+        return rooms;
     }
+
     public Room GetDoorRoom()
     {
-    return rooms[numX - 1, numY - 1]; // Assuming the door is always at the last room
+        return rooms[numX - 1, numY - 1]; // Assuming the door is always at the last room
     }
 
-
+    public List<GameObject> GetSpawnedKeys()
+    {
+        return spawnedKeys;
+    }
 }
