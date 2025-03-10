@@ -15,6 +15,8 @@ public class Agent : MonoBehaviour
     public Text keyAmount;
     public Text youWin;
 
+    public Text timerText;
+
     private bool bfs = false;
     public bool isAI = false;
     private List<Room> path;
@@ -23,14 +25,29 @@ public class Agent : MonoBehaviour
     private Room currentRoom;
     private Room doorRoom;
 
+
+    // Timer variables
+    private float timeElapsed = 0f;
+    private bool timerRunning = false;
+    private bool AgentIsMoving = false;
+    private bool AgentReachedExit = false;
     void Start()
     {
         rooms = FindObjectOfType<GenerateMaze>().GetRooms();
         currentRoom = GetCurrentRoom();
+        timerText.text = "A1 Time: 0.00";
     }
 
     void Update()
     {   
+                
+        // If the timer is running and the agent hasn't reached the exit, update the time
+        if (timerRunning && !AgentReachedExit)
+        {
+            timeElapsed += Time.deltaTime;
+            timerText.text = "A1 Time: " + timeElapsed.ToString("F2") + " seconds"; // Update the timer UI
+        }
+
         if (Input.GetKeyDown(KeyCode.B))
         {
             bfs = !bfs;
@@ -61,6 +78,15 @@ public class Agent : MonoBehaviour
         currentRoom = GetCurrentRoom();
         doorRoom = FindObjectOfType<GenerateMaze>().GetDoorRoom();
 
+        AgentIsMoving = true;
+
+        if (AgentIsMoving && !timerRunning)
+        {
+            timerRunning = true; // Start the timer when agent starts moving
+        }
+
+
+
         if (!bfs)
         {
             path = Pathfinding.FindPath(currentRoom, doorRoom, rooms, 10, 10);
@@ -83,6 +109,11 @@ public class Agent : MonoBehaviour
         // Reset agent's state
         keys = 0;
         transform.position = new Vector3(0f, 0f, 0f);
+
+        // Reset timer
+        timeElapsed = 0f;
+        timerRunning = false;
+        timerText.text = "A1 Time: 0.00"; // Reset timer UI
     }
 
     private void MoveToNextRoom()
@@ -150,7 +181,10 @@ public class Agent : MonoBehaviour
             {
                 Destroy(collision.gameObject);
                 // youWin.text = "YOU WIN!!!";
-                Debug.Log("YOU WIN!!!");
+                AgentReachedExit = true;
+                timerRunning = false;
+                Debug.Log("YOU WIN!!! Final Time: " + timeElapsed.ToString("F2") + " seconds");
+                youWin.text = "YOU WIN!!! Final Time: " + timeElapsed.ToString("F2") + " seconds"; // Show win message with time
             }
             else
             {
