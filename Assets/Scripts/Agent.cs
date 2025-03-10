@@ -24,6 +24,7 @@ public class Agent : MonoBehaviour
     private Room[,] rooms;
     private Room currentRoom;
     private Room doorRoom;
+    private List<GameObject> keyObjects;
 
     private bool moveToDoor = false;
 
@@ -36,7 +37,8 @@ public class Agent : MonoBehaviour
     private bool AgentIsMoving = false;
     void Start()
     {
-        rooms = FindAnyObjectByType<GenerateMaze>().GetRooms();
+        rooms = FindObjectOfType<GenerateMaze>().GetRooms();
+        keyObjects = FindObjectOfType<GenerateMaze>().GetSpawnedKeys();
         currentRoom = GetCurrentRoom();
         timerText.text = "A1 Time: 0.00";
     }
@@ -110,7 +112,7 @@ public class Agent : MonoBehaviour
         }
         else
         {
-            path = Pathfinding.FindPathBFS(currentRoom, doorRoom, rooms, 10, 10);
+            path = Pathfinding.FindPathBFS(currentRoom, doorRoom, rooms, keyObjects, 10, 10);
             Debug.Log("using bfs");
         }
         pathIndex = 0;
@@ -162,7 +164,6 @@ public class Agent : MonoBehaviour
         return null;
     }
 
-    
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if(collision.gameObject.tag == "Keys")
