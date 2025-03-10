@@ -7,15 +7,16 @@ public class Pathfinding : MonoBehaviour
 
     private static List<Room> FindPath(Func<Room, Room, Room[,], int, int, List<Room>> algorithm, Room startRoom, Room endRoom, Room[,] rooms, List<GameObject> keys, int numX, int numY)
     {
+        List<GameObject> keysCopy = new List<GameObject>(keys);
         List<Room> path = new List<Room>();
 
-        while (keys.Count > 0)
+        while (keysCopy.Count > 0)
         {
             int path_length_to_shortest_key = int.MaxValue;
             GameObject key_to_move_to = keys[0];
             List<Room> keyPath = new List<Room>();
 
-            foreach (GameObject key in keys)
+            foreach (GameObject key in keysCopy)
             {
                 Room key_room = FindKeyRoom(key, rooms);
                 List<Room> path_to_key = algorithm(startRoom, key_room, rooms, numX, numY);
@@ -36,7 +37,7 @@ public class Pathfinding : MonoBehaviour
                 path.Add(room);
             }
 
-            keys.Remove(key_to_move_to);
+            keysCopy.Remove(key_to_move_to);
         }
 
         List<Room> path_to_goal = algorithm(startRoom, endRoom, rooms, numX, numY);

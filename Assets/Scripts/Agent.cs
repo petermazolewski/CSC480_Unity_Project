@@ -8,7 +8,6 @@ public class Agent : MonoBehaviour
 {
     public int keys = 0;
     public float speed = 20.0f;
-    // public GameObject door;
 
     public int requiredKeys = 3; //number of keys required to open the door
 
@@ -17,35 +16,44 @@ public class Agent : MonoBehaviour
 
     public Text timerText;
 
-    private bool bfs = false;
+    protected bool bfs = false;
     public bool isAI = false;
-    private List<Room> path;
-    private int pathIndex = 0;
-    private Room[,] rooms;
-    private Room currentRoom;
-    private Room doorRoom;
-    private List<GameObject> keyObjects;
+    protected List<Room> path;
+    protected int pathIndex = 0;
+    protected Room[,] rooms;
+    protected Room currentRoom;
+    protected Room doorRoom;
+    protected List<GameObject> keyObjects;
 
-    private bool moveToDoor = false;
+    protected bool moveToDoor = false;
 
     // Timer variables
-    private float moveRightTimer = 0f;
-    private float moveRightDuration = 2f; // Duration to move to the right (in seconds)
+    protected float moveRightTimer = 0f;
+    protected float moveRightDuration = 2f; // Duration to move to the right (in seconds)
 
-    private float timeElapsed = 0f;
-    private bool timerRunning = false;
-    private bool AgentIsMoving = false;
-    void Start()
+    protected float timeElapsed = 0f;
+    protected bool timerRunning = false;
+    protected bool AgentIsMoving = false;
+    
+    protected virtual void Start()
     {
-        rooms = FindObjectOfType<GenerateMaze>().GetRooms();
-        keyObjects = FindObjectOfType<GenerateMaze>().GetSpawnedKeys();
+        GameObject bfsAgent = GameObject.FindWithTag("BFSAgent");
+        Physics2D.IgnoreCollision(bfsAgent.GetComponent<BoxCollider2D>(), GetComponent<BoxCollider2D>());
+
+        GameObject aStarAgent = GameObject.FindWithTag("AStarAgent");
+        Physics2D.IgnoreCollision(aStarAgent.GetComponent<BoxCollider2D>(), GetComponent<BoxCollider2D>());
+
+        GameObject player = GameObject.FindWithTag("Player");
+        Physics2D.IgnoreCollision(player.GetComponent<BoxCollider2D>(), GetComponent<BoxCollider2D>());
+
+        rooms = FindFirstObjectByType<GenerateMaze>().GetRooms();
+        keyObjects = FindFirstObjectByType<GenerateMaze>().GetSpawnedKeys();
         currentRoom = GetCurrentRoom();
         timerText.text = "A1 Time: 0.00";
     }
 
-    void Update()
+    protected virtual void Update()
     {   
-    // Check if the agent should move to the door
         if (moveToDoor)
         {
             if (moveRightTimer < moveRightDuration)
@@ -73,49 +81,24 @@ public class Agent : MonoBehaviour
             timeElapsed += Time.deltaTime;
             timerText.text = "A1 Time: " + timeElapsed.ToString("F2") + " seconds"; // Update the timer UI
         }
-
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            bfs = !bfs;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Q))  
+        
+        if (Input.GetKeyDown(KeyCode.Q))
         {
             if (isAI)
             {
-                StartAI();  // Start AI pathfinding
+                StartAI();
             }
         }
 
-        else if (path != null && pathIndex < path.Count)
+        if (path != null && pathIndex < path.Count)
         {
             MoveToNextRoom();
         }
     }
 
-    public void StartAI()
+    protected virtual void StartAI()
     {
-        isAI = true;
-        currentRoom = GetCurrentRoom();
-        doorRoom = FindAnyObjectByType<GenerateMaze>().GetDoorRoom();
 
-        AgentIsMoving = true;
-
-        if (AgentIsMoving && !timerRunning)
-        {
-            timerRunning = true; // Start the timer when agent starts moving
-        }
-
-        if (!bfs)
-        {
-            path = Pathfinding.FindPathAStar(currentRoom, doorRoom, rooms, keyObjects, 10, 10);
-        }
-        else
-        {
-            path = Pathfinding.FindPathBFS(currentRoom, doorRoom, rooms, keyObjects, 10, 10);
-            Debug.Log("using bfs");
-        }
-        pathIndex = 0;
     }
 
     public void ResetAgent()
@@ -136,7 +119,7 @@ public class Agent : MonoBehaviour
         timerText.text = "A1 Time: 0.00"; // Reset timer UI
     }
 
-    private void MoveToNextRoom()
+    protected void MoveToNextRoom()
     {
         if (pathIndex >= path.Count)
         {
@@ -154,7 +137,7 @@ public class Agent : MonoBehaviour
         }
     }
 
-    private Room GetCurrentRoom()
+    protected Room GetCurrentRoom()
     {
         foreach (Room room in rooms)
         {
