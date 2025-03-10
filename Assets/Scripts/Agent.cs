@@ -65,7 +65,7 @@ public class Agent : MonoBehaviour
 
         if (!bfs)
         {
-            path = Pathfinding.FindPath(currentRoom, doorRoom, rooms, 10, 10);
+            path = Pathfinding.FindPathAStar(currentRoom, doorRoom, rooms, keyObjects, 10, 10);
         }
         else
         {

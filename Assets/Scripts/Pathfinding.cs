@@ -1,9 +1,55 @@
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class Pathfinding : MonoBehaviour
 {
-    public static List<Room> FindPath(Room startRoom, Room endRoom, Room[,] rooms, int numX, int numY)
+
+    private static List<Room> FindPath(Func<Room, Room, Room[,], int, int, List<Room>> algorithm, Room startRoom, Room endRoom, Room[,] rooms, List<GameObject> keys, int numX, int numY)
+    {
+        List<Room> path = new List<Room>();
+
+        while (keys.Count > 0)
+        {
+            int path_length_to_shortest_key = int.MaxValue;
+            GameObject key_to_move_to = keys[0];
+            List<Room> keyPath = new List<Room>();
+
+            foreach (GameObject key in keys)
+            {
+                Room key_room = FindKeyRoom(key, rooms);
+                List<Room> path_to_key = algorithm(startRoom, key_room, rooms, numX, numY);
+
+                if (path_to_key.Count < path_length_to_shortest_key)
+                {
+                    path_length_to_shortest_key = path_to_key.Count;
+                    key_to_move_to = key;
+                    keyPath = path_to_key;
+                }
+            }
+
+            Room keyRoom = FindKeyRoom(key_to_move_to, rooms);
+            startRoom = keyRoom;
+
+            foreach (Room room in keyPath)
+            {
+                path.Add(room);
+            }
+
+            keys.Remove(key_to_move_to);
+        }
+
+        List<Room> path_to_goal = algorithm(startRoom, endRoom, rooms, numX, numY);
+        foreach (Room room in path_to_goal)
+        {
+            path.Add(room);
+        }
+
+        return path;
+    }
+
+
+    public static List<Room> AStar(Room startRoom, Room endRoom, Room[,] rooms, int numX, int numY)
     {
         PriorityQueue<Room> openSet = new PriorityQueue<Room>();
         HashSet<Room> closedSet = new HashSet<Room>();
@@ -43,7 +89,12 @@ public class Pathfinding : MonoBehaviour
             }
         }
 
-        return new List<Room>(); // Return empty list if no path found
+        return new List<Room>();
+    }
+
+    public static List<Room> FindPathAStar(Room startRoom, Room endRoom, Room[,] rooms, List<GameObject> keys, int numX, int numY)
+    {
+        return FindPath(AStar, startRoom, endRoom, rooms, keys, numX, numY);
     }
 
     public static List<Room> BFS(Room startRoom, Room endRoom, Room[,] rooms, int numX, int numY)
@@ -89,45 +140,7 @@ public class Pathfinding : MonoBehaviour
 
     public static List<Room> FindPathBFS(Room startRoom, Room endRoom, Room[,] rooms, List<GameObject> keys, int numX, int numY)
     {
-        List<Room> path = new List<Room>();
-
-        while (keys.Count > 0)
-        {
-            int path_length_to_shortest_key = int.MaxValue;
-            GameObject key_to_move_to = keys[0];
-            List<Room> keyPath = new List<Room>();
-
-            foreach (GameObject key in keys)
-            {
-                Room key_room = FindKeyRoom(key, rooms);
-                List<Room> path_to_key = BFS(startRoom, key_room, rooms, numX, numY);
-
-                if (path_to_key.Count < path_length_to_shortest_key)
-                {
-                    path_length_to_shortest_key = path_to_key.Count;
-                    key_to_move_to = key;
-                    keyPath = path_to_key;
-                }
-            }
-
-            Room keyRoom = FindKeyRoom(key_to_move_to, rooms);
-            startRoom = keyRoom;
-            
-            foreach (Room room in keyPath)
-            {
-                path.Add(room);
-            }
-
-            keys.Remove(key_to_move_to);
-        }
-
-        List<Room> path_to_goal = BFS(startRoom, endRoom, rooms, numX, numY);
-        foreach (Room room in path_to_goal)
-        {
-            path.Add(room);
-        }
-
-        return path;
+        return FindPath(BFS, startRoom, endRoom, rooms, keys, numX, numY);
     }
 
     private static float Heuristic(Room a, Room b)
