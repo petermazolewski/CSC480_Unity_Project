@@ -306,16 +306,28 @@ public class GenerateMaze : MonoBehaviour
             if(!generating)
             {
                 CreateMaze();
-                GameObject agentObject = GameObject.Find("Agent");
-                if (agentObject != null)
+                GameObject aStarAgentObject = GameObject.Find("AStarAgent");
+                if (aStarAgentObject != null)
                 {
-                    Agent agent = agentObject.GetComponent<Agent>();
-                    if (agent != null)
+                    AStarAgent aStarAgent = aStarAgentObject.GetComponent<AStarAgent>();
+                    if (aStarAgent != null)
                     {
-                        agent.ResetAgent();
-                        agent.isAI = true;
+                        aStarAgent.ResetAgent();
+                        aStarAgent.isAI = true;
                     }
                 }
+
+                GameObject bfsAgentObject = GameObject.Find("BFSAgent");
+                if (bfsAgentObject != null)
+                {
+                    BFSAgent bfsAgent = bfsAgentObject.GetComponent<BFSAgent>();
+                    if (bfsAgent != null)
+                    {
+                        bfsAgent.ResetAgent();
+                        bfsAgent.isAI = true;
+                    }
+                }
+
                 GameObject playerObject = GameObject.Find("Player");
                 if (playerObject != null)
                 {

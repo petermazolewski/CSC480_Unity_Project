@@ -8,71 +8,45 @@ public class Agent : MonoBehaviour
 {
     public int keys = 0;
     public float speed = 20.0f;
-    // public GameObject door;
 
     public int requiredKeys = 3; //number of keys required to open the door
 
     public Text keyAmount;
     public Text youWin;
 
-    private bool bfs = false;
+    protected bool bfs = false;
     public bool isAI = false;
-    private List<Room> path;
-    private int pathIndex = 0;
-    private Room[,] rooms;
-    private Room currentRoom;
-    private Room doorRoom;
-    private List<GameObject> keyObjects;
+    protected List<Room> path;
+    protected int pathIndex = 0;
+    protected Room[,] rooms;
+    protected Room currentRoom;
+    protected Room doorRoom;
+    protected List<GameObject> keyObjects;
 
-    void Start()
+    protected virtual void Start()
     {
-        rooms = FindObjectOfType<GenerateMaze>().GetRooms();
-        keyObjects = FindObjectOfType<GenerateMaze>().GetSpawnedKeys();
+        GameObject bfsAgent = GameObject.FindWithTag("BFSAgent");
+        Physics2D.IgnoreCollision(bfsAgent.GetComponent<BoxCollider2D>(), GetComponent<BoxCollider2D>());
+
+        GameObject aStarAgent = GameObject.FindWithTag("AStarAgent");
+        Physics2D.IgnoreCollision(aStarAgent.GetComponent<BoxCollider2D>(), GetComponent<BoxCollider2D>());
+
+        GameObject player = GameObject.FindWithTag("Player");
+        Physics2D.IgnoreCollision(player.GetComponent<BoxCollider2D>(), GetComponent<BoxCollider2D>());
+
+        rooms = FindFirstObjectByType<GenerateMaze>().GetRooms();
+        keyObjects = FindFirstObjectByType<GenerateMaze>().GetSpawnedKeys();
         currentRoom = GetCurrentRoom();
     }
 
-    void Update()
-    {   
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            bfs = !bfs;
-        }
+    protected virtual void Update()
+    {
 
-        if (Input.GetKeyDown(KeyCode.Q))  
-        {
-            // isAI = !isAI; // Toggle AI mode on/off
-            if (isAI)
-            {
-                StartAI();  // Start AI pathfinding
-            }
-        }
-
-        if (!isAI)
-        {
-            // HandleUserInput();
-        }
-        else if (path != null && pathIndex < path.Count)
-        {
-            MoveToNextRoom();
-        }
     }
 
-    public void StartAI()
+    protected virtual void StartAI()
     {
-        isAI = true;
-        currentRoom = GetCurrentRoom();
-        doorRoom = FindObjectOfType<GenerateMaze>().GetDoorRoom();
 
-        if (!bfs)
-        {
-            path = Pathfinding.FindPathAStar(currentRoom, doorRoom, rooms, keyObjects, 10, 10);
-        }
-        else
-        {
-            path = Pathfinding.FindPathBFS(currentRoom, doorRoom, rooms, keyObjects, 10, 10);
-            Debug.Log("using bfs");
-        }
-        pathIndex = 0;
     }
 
     public void ResetAgent()
@@ -87,7 +61,7 @@ public class Agent : MonoBehaviour
         transform.position = new Vector3(0f, 0f, 0f);
     }
 
-    private void MoveToNextRoom()
+    protected void MoveToNextRoom()
     {
         if (pathIndex >= path.Count)
         {
@@ -105,7 +79,7 @@ public class Agent : MonoBehaviour
         }
     }
 
-    private Room GetCurrentRoom()
+    protected Room GetCurrentRoom()
     {
         foreach (Room room in rooms)
         {
@@ -115,7 +89,7 @@ public class Agent : MonoBehaviour
         return null;
     }
 
-    private void HandleUserInput()
+    protected void HandleUserInput()
     {
         if(Input.GetKey(KeyCode.LeftArrow))
         {
@@ -135,7 +109,7 @@ public class Agent : MonoBehaviour
         }
     }
     
-    private void OnCollisionEnter2D(Collision2D collision)
+    protected void OnCollisionEnter2D(Collision2D collision)
     {
         if(collision.gameObject.tag == "Keys")
         {

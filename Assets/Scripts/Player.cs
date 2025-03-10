@@ -95,6 +95,6 @@ public class Player : MonoBehaviour
     public void ResetPlayer()
     {
         keys = 0;
-        transform.position = new Vector3(0f, 7f, 0f);
+        transform.position = new Vector3(0f, 0f, 0f);
     }
 }

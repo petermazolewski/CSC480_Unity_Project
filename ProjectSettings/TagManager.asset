@@ -8,6 +8,8 @@ TagManager:
   - Door
   - Undefined
   - Keys
+  - BFSAgent
+  - AStarAgent
   layers:
   - Default
   - TransparentFX
