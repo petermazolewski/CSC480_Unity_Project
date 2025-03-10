@@ -25,24 +25,48 @@ public class Agent : MonoBehaviour
     private Room currentRoom;
     private Room doorRoom;
 
+    private bool moveToDoor = false;
 
     // Timer variables
+    private float moveRightTimer = 0f;
+    private float moveRightDuration = 2f; // Duration to move to the right (in seconds)
+
     private float timeElapsed = 0f;
     private bool timerRunning = false;
     private bool AgentIsMoving = false;
-    private bool AgentReachedExit = false;
     void Start()
     {
-        rooms = FindObjectOfType<GenerateMaze>().GetRooms();
+        rooms = FindAnyObjectByType<GenerateMaze>().GetRooms();
         currentRoom = GetCurrentRoom();
         timerText.text = "A1 Time: 0.00";
     }
 
     void Update()
     {   
+    // Check if the agent should move to the door
+        if (moveToDoor)
+        {
+            if (moveRightTimer < moveRightDuration)
+            {
+                transform.Translate(speed * Time.deltaTime, 0, 0);
+                moveRightTimer += Time.deltaTime;
+            }
+            else
+            {
+                moveToDoor = false; // Stop moving after the duration
+            }
+        }
+
+        // Check if the current room is the door room
+        if (GetCurrentRoom() == doorRoom && !moveToDoor)
+        {
+            moveToDoor = true;
+            moveRightTimer = 0f; // Reset the timer
+            Debug.Log("in door room");
+        }
                 
         // If the timer is running and the agent hasn't reached the exit, update the time
-        if (timerRunning && !AgentReachedExit)
+        if (timerRunning)
         {
             timeElapsed += Time.deltaTime;
             timerText.text = "A1 Time: " + timeElapsed.ToString("F2") + " seconds"; // Update the timer UI
@@ -55,17 +79,12 @@ public class Agent : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Q))  
         {
-            // isAI = !isAI; // Toggle AI mode on/off
             if (isAI)
             {
                 StartAI();  // Start AI pathfinding
             }
         }
 
-        if (!isAI)
-        {
-            // HandleUserInput();
-        }
         else if (path != null && pathIndex < path.Count)
         {
             MoveToNextRoom();
@@ -76,7 +95,7 @@ public class Agent : MonoBehaviour
     {
         isAI = true;
         currentRoom = GetCurrentRoom();
-        doorRoom = FindObjectOfType<GenerateMaze>().GetDoorRoom();
+        doorRoom = FindAnyObjectByType<GenerateMaze>().GetDoorRoom();
 
         AgentIsMoving = true;
 
@@ -84,8 +103,6 @@ public class Agent : MonoBehaviour
         {
             timerRunning = true; // Start the timer when agent starts moving
         }
-
-
 
         if (!bfs)
         {
@@ -105,6 +122,7 @@ public class Agent : MonoBehaviour
         path = null;
         pathIndex = 0;
         isAI = false;
+        AgentIsMoving = false;
 
         // Reset agent's state
         keys = 0;
@@ -143,25 +161,7 @@ public class Agent : MonoBehaviour
         }
         return null;
     }
-    private void HandleUserInput()
-    {
-    if(Input.GetKey(KeyCode.LeftArrow))
-    {
-        transform.Translate(-speed * Time.deltaTime, 0, 0);
-    }
-    if(Input.GetKey(KeyCode.RightArrow))
-    {
-        transform.Translate(speed * Time.deltaTime, 0, 0);
-    }
-    if(Input.GetKey(KeyCode.UpArrow))
-    {
-        transform.Translate(0, speed * Time.deltaTime, 0);
-    }
-    if(Input.GetKey(KeyCode.DownArrow))
-    {
-        transform.Translate(0, -speed * Time.deltaTime, 0);
-    }
-    }
+
     
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -173,23 +173,15 @@ public class Agent : MonoBehaviour
             Destroy(collision.gameObject);
         }
 
-        if(collision.gameObject.tag == "Door") // silver
+        if(collision.gameObject.tag == "Door")
         {
-            // Destroy(collision.gameObject);
-            // youWin.text = "YOU WIN!!!";
             if (keys >= requiredKeys)
             {
                 Destroy(collision.gameObject);
-                // youWin.text = "YOU WIN!!!";
-                AgentReachedExit = true;
                 timerRunning = false;
                 Debug.Log("YOU WIN!!! Final Time: " + timeElapsed.ToString("F2") + " seconds");
-                youWin.text = "YOU WIN!!! Final Time: " + timeElapsed.ToString("F2") + " seconds"; // Show win message with time
             }
-            else
-            {
-                Debug.Log("Collect more keys to open the door!");
-            }
+
         }
 
         if(collision.gameObject.tag == "Enemies")
@@ -222,3 +214,4 @@ public class Agent : MonoBehaviour
         }
     }
 }
+
