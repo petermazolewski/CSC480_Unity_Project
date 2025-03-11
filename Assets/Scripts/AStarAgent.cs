@@ -5,11 +5,16 @@ public class AStarAgent : Agent
     protected override void Start()
     {
         base.Start();
+        timerText.text = "A* Time: 0.00";
     }
 
     protected override void Update()
     {
         base.Update();
+        if (timerRunning) {
+            timeElapsed += Time.deltaTime;
+            timerText.text = "A* Time: " + timeElapsed.ToString("F2") + " seconds"; // Update the timer UI
+        }
     }
 
     override protected void StartAI()
@@ -43,6 +48,6 @@ public class AStarAgent : Agent
         // Reset timer
         timeElapsed = 0f;
         timerRunning = false;
-        timerText.text = "A1 Time: 0.00"; // Reset timer UI
+        timerText.text = "A* Time: 0.00"; // Reset timer UI
     }
 }

@@ -13,7 +13,6 @@ public class Agent : MonoBehaviour
 
     public Text keyAmount;
     public Text youWin;
-
     public Text timerText;
 
     protected bool bfs = false;
@@ -49,7 +48,6 @@ public class Agent : MonoBehaviour
         rooms = FindFirstObjectByType<GenerateMaze>().GetRooms();
         keyObjects = FindFirstObjectByType<GenerateMaze>().GetSpawnedKeys();
         currentRoom = GetCurrentRoom();
-        timerText.text = "A1 Time: 0.00";
     }
 
     protected virtual void Update()
@@ -75,13 +73,6 @@ public class Agent : MonoBehaviour
             Debug.Log("in door room");
         }
                 
-        // If the timer is running and the agent hasn't reached the exit, update the time
-        if (timerRunning)
-        {
-            timeElapsed += Time.deltaTime;
-            timerText.text = "A1 Time: " + timeElapsed.ToString("F2") + " seconds"; // Update the timer UI
-        }
-        
         if (Input.GetKeyDown(KeyCode.Q))
         {
             if (isAI)

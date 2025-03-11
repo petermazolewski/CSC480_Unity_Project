@@ -5,49 +5,15 @@ public class BFSAgent : Agent
     protected override void Start()
     {
         base.Start();
+        timerText.text = "BFS Time: 0.00";
     }
 
-    override protected void Update()
+    protected override void Update()
     {
-        if (moveToDoor)
-        {
-            if (moveRightTimer < moveRightDuration)
-            {
-                transform.Translate(speed * Time.deltaTime, 0, 0);
-                moveRightTimer += Time.deltaTime;
-            }
-            else
-            {
-                moveToDoor = false; // Stop moving after the duration
-            }
-        }
-
-        // Check if the current room is the door room
-        if (GetCurrentRoom() == doorRoom && !moveToDoor)
-        {
-            moveToDoor = true;
-            moveRightTimer = 0f; // Reset the timer
-            Debug.Log("in door room");
-        }
-                
-        // If the timer is running and the agent hasn't reached the exit, update the time
-        if (timerRunning)
-        {
+        base.Update();
+        if (timerRunning) {
             timeElapsed += Time.deltaTime;
-            timerText.text = "A1 Time: " + timeElapsed.ToString("F2") + " seconds"; // Update the timer UI
-        }
-
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            if (isAI)
-            {
-                StartAI();
-            }
-        }
-
-        if (path != null && pathIndex < path.Count)
-        {
-            MoveToNextRoom();
+            timerText.text = "BFS Time: " + timeElapsed.ToString("F2") + " seconds"; // Update the timer UI
         }
     }
 
@@ -82,6 +48,6 @@ public class BFSAgent : Agent
         // Reset timer
         timeElapsed = 0f;
         timerRunning = false;
-        timerText.text = "A1 Time: 0.00"; // Reset timer UI
+        timerText.text = "BFS Time: 0.00"; // Reset timer UI
     }
 }
