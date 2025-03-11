@@ -25,14 +25,14 @@ public class Agent : MonoBehaviour
     protected List<GameObject> keyObjects;
 
     protected bool moveToDoor = false;
+    protected bool exiting = false;
 
     // Timer variables
     protected float moveRightTimer = 0f;
-    protected float moveRightDuration = 2f; // Duration to move to the right (in seconds)
+    protected float moveRightDuration = 1f; // Duration to move to the right (in seconds)
 
     protected float timeElapsed = 0f;
     protected bool timerRunning = false;
-    protected bool AgentIsMoving = false;
     
     protected virtual void Start()
     {
@@ -52,25 +52,34 @@ public class Agent : MonoBehaviour
 
     protected virtual void Update()
     {   
+        if (AllKeysCollected())
+        {
+            exiting = true;
+        }
+        // Check if the current room is the door room
+        if (GetCurrentRoom() == doorRoom && !moveToDoor && exiting)
+        {
+            timerRunning = false;
+            Debug.Log("in door room");
+            if (keys >= requiredKeys)
+            {
+                moveToDoor = true;
+                moveRightTimer = 0f; // Reset the timer
+            }
+            
+        }
         if (moveToDoor)
         {
             if (moveRightTimer < moveRightDuration)
             {
                 transform.Translate(speed * Time.deltaTime, 0, 0);
                 moveRightTimer += Time.deltaTime;
+                Debug.Log("moving");
             }
             else
             {
                 moveToDoor = false; // Stop moving after the duration
             }
-        }
-
-        // Check if the current room is the door room
-        if (GetCurrentRoom() == doorRoom && !moveToDoor)
-        {
-            moveToDoor = true;
-            moveRightTimer = 0f; // Reset the timer
-            Debug.Log("in door room");
         }
                 
         if (Input.GetKeyDown(KeyCode.Q))
@@ -139,7 +148,6 @@ public class Agent : MonoBehaviour
             if (keys >= requiredKeys)
             {
                 Destroy(collision.gameObject);
-                timerRunning = false;
                 Debug.Log("YOU WIN!!! Final Time: " + timeElapsed.ToString("F2") + " seconds");
             }
 
@@ -173,6 +181,20 @@ public class Agent : MonoBehaviour
                 Debug.Log("Down");
             }
         }
+    }
+
+    private bool AllKeysCollected()
+    {
+        // Check if all keys have been collected by any agent
+        int totalKeysCollected = 0;
+        Agent[] agents = FindObjectsOfType<Agent>();
+        foreach (Agent agent in agents)
+        {
+            totalKeysCollected += agent.keys;
+        }
+        Player[] player = FindObjectsOfType<Player>();
+        totalKeysCollected += player[0].keys;
+        return totalKeysCollected >= keyObjects.Count;
     }
 }
 

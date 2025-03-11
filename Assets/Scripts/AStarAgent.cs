@@ -23,9 +23,7 @@ public class AStarAgent : Agent
         currentRoom = GetCurrentRoom();
         doorRoom = FindFirstObjectByType<GenerateMaze>().GetDoorRoom();
 
-        AgentIsMoving = true;
-
-        if (AgentIsMoving && !timerRunning)
+        if (!timerRunning)
         {
             timerRunning = true; // Start the timer when agent starts moving
         }
@@ -39,11 +37,11 @@ public class AStarAgent : Agent
         path = null;
         pathIndex = 0;
         isAI = false;
-        AgentIsMoving = false;
 
         // Reset agent's state
         keys = 0;
         transform.position = new Vector3(7f, 0f, 0f);
+        exiting = false;
 
         // Reset timer
         timeElapsed = 0f;
