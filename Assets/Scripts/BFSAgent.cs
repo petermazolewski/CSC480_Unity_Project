@@ -63,8 +63,25 @@ public class BFSAgent : Agent
         {
             timerRunning = true; // Start the timer when agent starts moving
         }
-        
+
         path = Pathfinding.FindPathBFS(currentRoom, doorRoom, rooms, keyObjects, 10, 10);
         pathIndex = 0;
+    }
+
+    override public void ResetAgent()
+    {
+        path = null;
+        pathIndex = 0;
+        isAI = false;
+        AgentIsMoving = false;
+
+        // Reset agent's state
+        keys = 0;
+        transform.position = new Vector3(0f, 7f, 0f);
+
+        // Reset timer
+        timeElapsed = 0f;
+        timerRunning = false;
+        timerText.text = "A1 Time: 0.00"; // Reset timer UI
     }
 }

@@ -101,22 +101,8 @@ public class Agent : MonoBehaviour
 
     }
 
-    public void ResetAgent()
+    public virtual void ResetAgent()
     {
-        // Reset pathfinding state
-        path = null;
-        pathIndex = 0;
-        isAI = false;
-        AgentIsMoving = false;
-
-        // Reset agent's state
-        keys = 0;
-        transform.position = new Vector3(0f, 0f, 0f);
-
-        // Reset timer
-        timeElapsed = 0f;
-        timerRunning = false;
-        timerText.text = "A1 Time: 0.00"; // Reset timer UI
     }
 
     protected void MoveToNextRoom()
