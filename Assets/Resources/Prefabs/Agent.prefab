@@ -58,7 +58,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -104,8 +104,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keys: 0
   speed: 15
+  requiredKeys: 3
   keyAmount: {fileID: 0}
   youWin: {fileID: 0}
+  isAI: 0
 --- !u!61 &1428273106774202533
 BoxCollider2D:
   m_ObjectHideFlags: 0

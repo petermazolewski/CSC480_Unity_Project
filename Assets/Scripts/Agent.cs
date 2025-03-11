@@ -49,16 +49,9 @@ public class Agent : MonoBehaviour
 
     }
 
-    public void ResetAgent()
+    public virtual void ResetAgent()
     {
-        // Reset pathfinding state
-        path = null;
-        pathIndex = 0;
-        isAI = false;
 
-        // Reset agent's state
-        keys = 0;
-        transform.position = new Vector3(0f, 0f, 0f);
     }
 
     protected void MoveToNextRoom()
