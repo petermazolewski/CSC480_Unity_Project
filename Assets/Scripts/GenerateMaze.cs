@@ -9,12 +9,11 @@ public class GenerateMaze : MonoBehaviour
     [SerializeField]
     GameObject roomPrefab;
     public GameObject door;
+    private GameObject instantiatedDoor; // for reference
     
     public GameObject keyPrefab; //key prefab
 
     public int totalKeysRequired = 3; //number of keys
-
-    private GameObject spawnedDoor; //store door reference
 
     private List<GameObject> spawnedKeys = new List<GameObject>(); // Store keys
 
@@ -23,7 +22,7 @@ public class GenerateMaze : MonoBehaviour
 
     [SerializeField]
     int numX = 10;
-    int numY = 10;
+    int numY = 15;
 
     // The room width and height
     float roomWidth;
@@ -55,14 +54,15 @@ public class GenerateMaze : MonoBehaviour
     {
         Camera.main.transform.position = new Vector3(numX * (roomWidth - 1) / 2, numY * (roomHeight - 1) / 2, -100.0f);
 
-        float min_value = Mathf.Min(numX * (roomWidth - 1), numY * (roomHeight - 1));
-        Camera.main.orthographicSize = min_value * 0.75f;
+        float verticalSize = numY * (roomHeight - 1) / 2;
+        float horizontalSize = (numX * (roomWidth - 1) / Camera.main.aspect) / 2;
+        Camera.main.orthographicSize = 60;
     }
+
+    
 
     private void Start()
     {
-        //keys = 0;
-        //keyAmount.txt = "Keys: " + keys; 
         GetRoomSize();
 
         rooms = new Room[numX, numY];
@@ -80,8 +80,6 @@ public class GenerateMaze : MonoBehaviour
         }
 
         SetCamera();
-
-
     }
 
     private void RemoveRoomWall(int x, int y, Room.Directions dir)
@@ -228,7 +226,7 @@ public class GenerateMaze : MonoBehaviour
 
         Vector3 doorPosition = rooms[numX - 1, numY - 1].transform.position;
         doorPosition.x += (roomWidth - 1)/ 2;
-        Instantiate(door, doorPosition, Quaternion.identity);
+        instantiatedDoor = Instantiate(door, doorPosition, Quaternion.identity);
         DespawnKeys();
         SpawnKeys();
 
@@ -296,6 +294,10 @@ public class GenerateMaze : MonoBehaviour
                 rooms[i, j].SetDirFlag(Room.Directions.LEFT, true);
                 rooms[i, j].visited = false;
             }
+        }
+        if (instantiatedDoor != null)
+        {
+            Destroy(instantiatedDoor); // Destroy the instantiated door
         }
     }
 

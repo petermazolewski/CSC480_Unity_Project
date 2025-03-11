@@ -28,7 +28,7 @@ public class BFSAgent : Agent
             timerRunning = true; // Start the timer when agent starts moving
         }
 
-        path = Pathfinding.FindPathBFS(currentRoom, doorRoom, rooms, keyObjects, 10, 10);
+        path = Pathfinding.FindPathBFS(currentRoom, doorRoom, rooms, keyObjects, 10, 15);
         pathIndex = 0;
     }
 
@@ -40,7 +40,7 @@ public class BFSAgent : Agent
 
         // Reset agent's state
         keys = 0;
-        transform.position = new Vector3(0f, 7f, 0f);
+        transform.position = new Vector3(0f, 98f, 0f);
         exiting = false;
         keysCollected = false;
 

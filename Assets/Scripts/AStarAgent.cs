@@ -28,7 +28,7 @@ public class AStarAgent : Agent
             timerRunning = true; // Start the timer when agent starts moving
         }
 
-        path = Pathfinding.FindPathAStar(currentRoom, doorRoom, rooms, keyObjects, 10, 10);
+        path = Pathfinding.FindPathAStar(currentRoom, doorRoom, rooms, keyObjects, 10, 15);
         pathIndex = 0;
     }
 
