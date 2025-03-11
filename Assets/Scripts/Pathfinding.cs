@@ -13,7 +13,7 @@ public class Pathfinding : MonoBehaviour
         while (keysCopy.Count > 0)
         {
             int path_length_to_shortest_key = int.MaxValue;
-            GameObject key_to_move_to = keys[0];
+            GameObject key_to_move_to = keysCopy[0];
             List<Room> keyPath = new List<Room>();
 
             foreach (GameObject key in keysCopy)
