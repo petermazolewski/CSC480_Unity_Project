@@ -42,6 +42,7 @@ public class AStarAgent : Agent
         keys = 0;
         transform.position = new Vector3(7f, 0f, 0f);
         exiting = false;
+        keysCollected = false;
 
         // Reset timer
         timeElapsed = 0f;

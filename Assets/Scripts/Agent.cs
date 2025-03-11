@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 public class Agent : MonoBehaviour
 {
     public int keys = 0;
-    public float speed = 20.0f;
+    public float speed = 17.0f;
 
     public int requiredKeys = 3; //number of keys required to open the door
 
@@ -33,6 +33,8 @@ public class Agent : MonoBehaviour
 
     protected float timeElapsed = 0f;
     protected bool timerRunning = false;
+
+    public static bool keysCollected = false;
     
     protected virtual void Start()
     {
@@ -54,13 +56,14 @@ public class Agent : MonoBehaviour
     {   
         if (AllKeysCollected())
         {
+            keysCollected = true;
             exiting = true;
         }
         // Check if the current room is the door room
         if (GetCurrentRoom() == doorRoom && !moveToDoor && exiting)
         {
             timerRunning = false;
-            Debug.Log("in door room");
+            // Debug.Log("in door room");
             if (keys >= requiredKeys)
             {
                 moveToDoor = true;
@@ -74,7 +77,7 @@ public class Agent : MonoBehaviour
             {
                 transform.Translate(speed * Time.deltaTime, 0, 0);
                 moveRightTimer += Time.deltaTime;
-                Debug.Log("moving");
+                // Debug.Log("moving");
             }
             else
             {
@@ -145,6 +148,7 @@ public class Agent : MonoBehaviour
 
         if(collision.gameObject.tag == "Door")
         {
+            Debug.Log("Door HIT!!!");
             if (keys >= requiredKeys)
             {
                 Destroy(collision.gameObject);
@@ -185,14 +189,14 @@ public class Agent : MonoBehaviour
 
     private bool AllKeysCollected()
     {
-        // Check if all keys have been collected by any agent
+        // Check if all keys have been collected
         int totalKeysCollected = 0;
-        Agent[] agents = FindObjectsOfType<Agent>();
+        Agent[] agents = Object.FindObjectsByType<Agent>(FindObjectsSortMode.None);
         foreach (Agent agent in agents)
         {
             totalKeysCollected += agent.keys;
         }
-        Player[] player = FindObjectsOfType<Player>();
+        Player[] player = Object.FindObjectsByType<Player>(FindObjectsSortMode.None);
         totalKeysCollected += player[0].keys;
         return totalKeysCollected >= keyObjects.Count;
     }

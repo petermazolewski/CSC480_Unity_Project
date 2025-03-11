@@ -18,11 +18,14 @@ public class Player : MonoBehaviour
     private bool playerIsMoving = false;
     private bool playerReachedExit = false;
 
+    private GenerateMaze generateMaze;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         // Initialize the timer UI text
         timerText.text = "P1 Time: 0.00";
+        generateMaze = FindAnyObjectByType<GenerateMaze>(); // Find the GenerateMaze instance
     }
 
     // Update is called once per frame
@@ -48,6 +51,13 @@ public class Player : MonoBehaviour
             timerText.text = "P1 Time: " + timeElapsed.ToString("F2") + " seconds"; // Update the timer UI
         }
 
+        if (Agent.keysCollected && GetCurrentRoom() == generateMaze.GetDoorRoom())
+        {
+            timerRunning = false;
+            playerReachedExit = true;
+            Debug.Log("Player reached the doorway. Timer stopped.");
+        }
+
         // Handle player movement
         if (Input.GetKey(KeyCode.LeftArrow))
         {
@@ -67,6 +77,17 @@ public class Player : MonoBehaviour
         }
     }
 
+    private Room GetCurrentRoom()
+    {
+        Room[,] rooms = generateMaze.GetRooms();
+        foreach (Room room in rooms)
+        {
+            if (Vector3.Distance(transform.position, room.transform.position) < 0.5f)
+                return room;
+        }
+        return null;
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         // Key collection
@@ -80,14 +101,13 @@ public class Player : MonoBehaviour
         // Door interaction (exit)
         if (collision.gameObject.tag == "Door")
         {
+            timerRunning = false;
             if (keys >= requiredKeys)
             {
                 Destroy(collision.gameObject);
                 // Stop the timer when the player reaches the exit
                 playerReachedExit = true;
-                timerRunning = false;
                 Debug.Log("YOU WIN!!! Final Time: " + timeElapsed.ToString("F2") + " seconds");
-                youWin.text = "YOU WIN!!! Final Time: " + timeElapsed.ToString("F2") + " seconds"; // Show win message with time
             }
             else
             {
@@ -123,7 +143,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    // Reset the player position and keys (useful for level resets or death)
+    // Reset the player position and keys upon level reset
     public void ResetPlayer()
     {
         keys = 0;
@@ -131,5 +151,6 @@ public class Player : MonoBehaviour
         timeElapsed = 0f; // Reset the timer
         timerRunning = false;
         timerText.text = "P1 Time: 0.00"; // Reset timer UI
+        playerReachedExit = false; 
     }
 }
