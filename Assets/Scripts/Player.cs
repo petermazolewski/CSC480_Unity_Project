@@ -56,7 +56,7 @@ public class Player : MonoBehaviour, IKeyObserver
             playerIsMoving = true;
         }
 
-        if (playerIsMoving && !timerRunning)
+        if (playerIsMoving && !timerRunning && !playerReachedExit)
         {
             timerRunning = true; // Start the timer when player starts moving
         }
@@ -68,7 +68,7 @@ public class Player : MonoBehaviour, IKeyObserver
             timerText.text = "P1 Time: " + timeElapsed.ToString("F2") + " seconds"; // Update the timer UI
         }
 
-        if (Agent.keysCollected && GetCurrentRoom() == generateMaze.GetDoorRoom())
+        if (!playerReachedExit && (keys >= requiredKeys) && (GetCurrentRoom() == generateMaze.GetDoorRoom()))
         {
             timerRunning = false;
             playerReachedExit = true;
@@ -96,13 +96,23 @@ public class Player : MonoBehaviour, IKeyObserver
 
     private Room GetCurrentRoom()
     {
-        Room[,] rooms = generateMaze.GetRooms();
+        Room [,] rooms = generateMaze.GetRooms();
+
+        Room closestRoom = null;
+        float closestDistance = float.MaxValue;
+        
         foreach (Room room in rooms)
         {
-            if (Vector3.Distance(transform.position, room.transform.position) < 0.5f)
-                return room;
+            float distance = Vector3.Distance(transform.position, room.transform.position);
+            
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestRoom = room;
+            }
+                
         }
-        return null;
+        return closestRoom;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
