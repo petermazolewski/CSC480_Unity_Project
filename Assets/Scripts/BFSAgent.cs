@@ -6,6 +6,7 @@ public class BFSAgent : Agent
     {
         base.Start();
         timerText.text = "BFS Time: 0.00";
+        keyAmount.text = "Key: 0";
     }
 
     protected override void Update()
@@ -49,6 +50,7 @@ public class BFSAgent : Agent
         // Reset timer
         timeElapsed = 0f;
         timerRunning = false;
-        timerText.text = "BFS Time: 0.00"; // Reset timer UI
+        timerText.text = "BFS Time: 0.00"; // Reset timer UI\
+        keyAmount.text = "Key: 0";
     }
 }

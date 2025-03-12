@@ -25,6 +25,7 @@ public class Player : MonoBehaviour
     {
         // Initialize the timer UI text
         timerText.text = "P1 Time: 0.00";
+        keyAmount.text = "Keys: 0"; // Set initial key count to 0
         generateMaze = FindAnyObjectByType<GenerateMaze>(); // Find the GenerateMaze instance
     }
 
@@ -95,6 +96,7 @@ public class Player : MonoBehaviour
         {
             Debug.Log("Key HIT!!!");
             keys++;
+            keyAmount.text = "Key: " + keys;
             Destroy(collision.gameObject);
         }
 
@@ -151,6 +153,7 @@ public class Player : MonoBehaviour
         timeElapsed = 0f; // Reset the timer
         timerRunning = false;
         timerText.text = "P1 Time: 0.00"; // Reset timer UI
+        keyAmount.text = "Key: 0"; // Set initial key count to 0
         playerReachedExit = false; 
     }
 }

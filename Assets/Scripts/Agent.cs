@@ -152,7 +152,7 @@ public class Agent : MonoBehaviour
         {
             Debug.Log("Key HIT!!!");
             keys++;
-            // keyAmount.text = "Keys: " + keys;
+            keyAmount.text = "Keys: " + keys;
             keyObjects.Remove(collision.gameObject);
             Destroy(collision.gameObject);
             NotifyObservers();
