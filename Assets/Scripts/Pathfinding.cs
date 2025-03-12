@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 
-public class Pathfinding : MonoBehaviour , IKeyObserver
+public class Pathfinding : MonoBehaviour
 {
     private Room targetKeyRoom;
     private Room startRoom;
@@ -11,51 +11,19 @@ public class Pathfinding : MonoBehaviour , IKeyObserver
     private List<GameObject> keyObjects;
     private int numX, numY;
 
-    private static List<Room> FindPath(Func<Room, Room, Room[,], int, int, List<Room>> algorithm, Room startRoom, Room endRoom, Room[,] rooms, List<GameObject> keys, int numX, int numY, int maxKeys = 3)
+    private static List<Room> FindPath(Func<Room, Room, Room[,], int, int, List<Room>> algorithm, Room startRoom, Room[,] rooms, List<GameObject> keys, int numX, int numY)
     {
-        List<GameObject> keysCopy = new List<GameObject>(keys);
         List<Room> path = new List<Room>();
-
-        int keysCollected = 0;
-
-        while (keysCopy.Count > 0 && keysCollected < maxKeys) // Limit to 3 keys
+        int pathLengthToShortestKey = int.MaxValue;
+        
+        foreach(GameObject key in keys)
         {
-            int pathLengthToShortestKey = int.MaxValue;
-            GameObject keyToMoveTo = keysCopy[0];
-            List<Room> keyPath = new List<Room>();
+            Room currentkeyRoom = FindKeyRoom(key, rooms);
+            List<Room> pathToKey = algorithm(startRoom, currentkeyRoom, rooms, numX, numY);
 
-            foreach (GameObject key in keysCopy)
-            {
-                Room currentkeyRoom = FindKeyRoom(key, rooms); // Get the key room
-                List<Room> pathToKey = algorithm(startRoom, currentkeyRoom, rooms, numX, numY);
-
-                if (pathToKey.Count < pathLengthToShortestKey)
-                {
-                    pathLengthToShortestKey = pathToKey.Count;
-                    keyToMoveTo = key;
-                    keyPath = pathToKey;
-                }
-            }
-
-            Room keyRoom = FindKeyRoom(keyToMoveTo, rooms); // Get the room for the collected key
-            startRoom = keyRoom; // Update start room to the key room
-
-            foreach (Room room in keyPath)
-            {
-                path.Add(room);
-            }
-
-            keysCopy.Remove(keyToMoveTo); // Remove the collected key from the list
-            keysCollected++; // Increment the number of collected keys
-        }
-
-        // After collecting the keys, proceed to the door
-        if (keysCollected >= maxKeys)
-        {
-            List<Room> pathToGoal = algorithm(startRoom, endRoom, rooms, numX, numY);
-            foreach (Room room in pathToGoal)
-            {
-                path.Add(room);
+            if (pathToKey.Count < pathLengthToShortestKey) {
+                pathLengthToShortestKey = pathToKey.Count;
+                path = pathToKey;
             }
         }
 
@@ -106,9 +74,9 @@ public class Pathfinding : MonoBehaviour , IKeyObserver
         return new List<Room>();
     }
 
-    public static List<Room> FindPathAStar(Room startRoom, Room endRoom, Room[,] rooms, List<GameObject> keys, int numX, int numY, int maxKeys)
+    public static List<Room> FindPathAStar(Room startRoom, Room[,] rooms, List<GameObject> keys, int numX, int numY)
     {
-        return FindPath(AStar, startRoom, endRoom, rooms, keys, numX, numY, maxKeys);
+        return FindPath(AStar, startRoom, rooms, keys, numX, numY);
     }
 
     public static List<Room> BFS(Room startRoom, Room endRoom, Room[,] rooms, int numX, int numY)
@@ -143,18 +111,26 @@ public class Pathfinding : MonoBehaviour , IKeyObserver
     }
 
     private static Room FindKeyRoom(GameObject key, Room[,] rooms)
-    {
+    {   
+        Room closestRoom = null;
+        float closestDistance = float.MaxValue;
+
         foreach (Room room in rooms)
         {
-            if (Vector3.Distance(room.transform.position, key.transform.position) < 0.5f)
-                return room;
+            float distance = Vector3.Distance(key.transform.position, room.transform.position);
+
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestRoom = room;
+            }
         }
-        return null;
+        return closestRoom;
     }
 
-    public static List<Room> FindPathBFS(Room startRoom, Room endRoom, Room[,] rooms, List<GameObject> keys, int numX, int numY, int maxKeys)
+    public static List<Room> FindPathBFS(Room startRoom, Room[,] rooms, List<GameObject> keys, int numX, int numY)
     {
-        return FindPath(BFS, startRoom, endRoom, rooms, keys, numX, numY, maxKeys);
+        return FindPath(BFS, startRoom, rooms, keys, numX, numY);
     }
 
     private static float Heuristic(Room a, Room b)
@@ -181,17 +157,5 @@ public class Pathfinding : MonoBehaviour , IKeyObserver
         keyObjects = keys;
         numX = x;
         numY = y;
-    }
-
-    public void OnKeyCollected(List<GameObject> updatedKeys)
-    {
-        keyObjects = updatedKeys;
-
-        if (targetKeyRoom != null && !keyObjects.Contains(targetKeyRoom.gameObject))
-        {
-            // Recalculate path if the targeted key is gone
-            List<Room> newPath = FindPath(AStar, startRoom, endRoom, rooms, keyObjects, numX, numY);
-            Debug.Log("Path recalculated due to key collection.");
-        }
     }
 }

@@ -14,6 +14,7 @@ public class GenerateMaze : MonoBehaviour
     public GameObject keyPrefab; //key prefab
 
     public int totalKeysRequired = 3; //number of keys
+    public int numKeys = 9;
 
     private List<GameObject> spawnedKeys = new List<GameObject>(); // Store keys
 
@@ -58,9 +59,7 @@ public class GenerateMaze : MonoBehaviour
         float horizontalSize = (numX * (roomWidth - 1) / Camera.main.aspect) / 2;
         Camera.main.orthographicSize = 60;
     }
-
     
-
     private void Start()
     {
         GetRoomSize();
@@ -250,7 +249,7 @@ public class GenerateMaze : MonoBehaviour
     private void SpawnKeys()
     {
         HashSet<Vector2Int> usedPositions = new HashSet<Vector2Int>();
-        for(int i = 0; i < 9; i++)
+        for(int i = 0; i < numKeys; i++)
         {
             int x, y;
             do
@@ -258,13 +257,12 @@ public class GenerateMaze : MonoBehaviour
                 x = UnityEngine.Random.Range(0, numX);
                 y = UnityEngine.Random.Range(0, numY);
             }
-            while(usedPositions.Contains(new Vector2Int(x, y)) || (x == 0 && y == 0)); // Avoid start position
+            while(usedPositions.Contains(new Vector2Int(x, y)) || (x == 0 && y == 0) || (x == 0 && y == 98) || (x == 7 && y == 0)); // Avoid start position
 
             usedPositions.Add(new Vector2Int(x, y));
             Vector3 keyPosition = rooms[x, y].transform.position;
             GameObject newKey = Instantiate(keyPrefab, keyPosition, Quaternion.identity);
             spawnedKeys.Add(newKey);
-            //Instantiate(keyPrefab, keyPosition, Quaternion.identity);
         }
     }
 

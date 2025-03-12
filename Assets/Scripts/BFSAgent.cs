@@ -1,12 +1,26 @@
+using System.Collections.Generic;
+using System;
 using UnityEngine;
 
-public class BFSAgent : Agent
+public class BFSAgent : Agent, IKeyObserver
 {
     protected override void Start()
     {
         base.Start();
         timerText.text = "BFS Time: 0.00";
         keyAmount.text = "Key: 0";
+
+        AStarAgent obsa = FindAnyObjectByType<AStarAgent>();
+        if (obsa != null)
+        {
+            AddObserver(obsa);
+        }
+
+        Player obsplayer = FindAnyObjectByType<Player>();
+        if (obsplayer != null)
+        {
+            AddObserver(obsplayer);
+        }
     }
 
     protected override void Update()
@@ -22,15 +36,48 @@ public class BFSAgent : Agent
     {
         isAI = true;
         currentRoom = GetCurrentRoom();
-        doorRoom = FindFirstObjectByType<GenerateMaze>().GetDoorRoom();
 
         if (!timerRunning)
         {
-            timerRunning = true; // Start the timer when agent starts moving
+            timerRunning = true;
         }
 
-        // Pass 3 as maxKeys to only look for the closest 3 keys
-        path = Pathfinding.FindPathBFS(currentRoom, doorRoom, rooms, keyObjects, 10, 15, 3);
+        path = Pathfinding.FindPathBFS(currentRoom, rooms, keyObjects, 10, 15);
+        pathIndex = 0;
+    }
+
+    protected override void OnCollisionEnter2D(Collision2D collision)
+    {
+        base.OnCollisionEnter2D(collision);
+
+        if (collision.gameObject.tag == "Keys")
+        {
+            currentRoom = GetCurrentRoom();
+            doorRoom = FindFirstObjectByType<GenerateMaze>().GetDoorRoom();
+
+            if (keys >= requiredKeys || AllKeysCollected()) {
+                path = Pathfinding.BFS(currentRoom, doorRoom, rooms, 10, 15);
+            } else {
+                path = Pathfinding.FindPathBFS(currentRoom, rooms, keyObjects, 10, 15);
+            }
+            pathIndex = 0;
+        }
+    }
+
+    public void OnKeyCollected(GameObject collision)
+    {
+        keyObjects.Remove(collision);
+
+        if (path == null) return;
+
+        currentRoom = GetCurrentRoom();
+        doorRoom = FindFirstObjectByType<GenerateMaze>().GetDoorRoom();
+
+        if (keys >= requiredKeys || AllKeysCollected()) {
+            path = Pathfinding.BFS(currentRoom, doorRoom, rooms, 10, 15);
+        } else {
+            path = Pathfinding.FindPathBFS(currentRoom, rooms, keyObjects, 10, 15);
+        }
         pathIndex = 0;
     }
 

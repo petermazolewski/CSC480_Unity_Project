@@ -36,7 +36,7 @@ public class Agent : MonoBehaviour
 
     public static bool keysCollected = false;
 
-    private List<IKeyObserver> keyObservers = new List<IKeyObserver>();
+    protected List<IKeyObserver> keyObservers = new List<IKeyObserver>();
     
     protected virtual void Start()
     {
@@ -52,14 +52,6 @@ public class Agent : MonoBehaviour
         rooms = FindFirstObjectByType<GenerateMaze>().GetRooms();
         keyObjects = FindFirstObjectByType<GenerateMaze>().GetSpawnedKeys();
         currentRoom = GetCurrentRoom();
-
-        Pathfinding pathfindingObserver = FindAnyObjectByType<Pathfinding>();  // Replace Pathfinding with your class
-
-        // Register the observer with the Agent
-        if (pathfindingObserver != null)
-        {
-            AddObserver(pathfindingObserver);
-        }
     }
 
     protected virtual void Update()
@@ -74,7 +66,7 @@ public class Agent : MonoBehaviour
         {
             timerRunning = false;
             // Debug.Log("in door room");
-            if (keys >= requiredKeys)
+            if (keys >= requiredKeys || AllKeysCollected())
             {
                 moveToDoor = true;
                 moveRightTimer = 0f; // Reset the timer
@@ -128,6 +120,7 @@ public class Agent : MonoBehaviour
 
         Room targetRoom = path[pathIndex];
         Vector3 targetPosition = targetRoom.transform.position;
+
         transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
 
         if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
@@ -138,15 +131,24 @@ public class Agent : MonoBehaviour
 
     protected Room GetCurrentRoom()
     {
+        Room closestRoom = null;
+        float closestDistance = float.MaxValue;
+        
         foreach (Room room in rooms)
         {
-            if (Vector3.Distance(transform.position, room.transform.position) < 0.5f)
-                return room;
+            float distance = Vector3.Distance(transform.position, room.transform.position);
+            
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestRoom = room;
+            }
+                
         }
-        return null;
+        return closestRoom;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    protected virtual void OnCollisionEnter2D(Collision2D collision)
     {
         if(collision.gameObject.tag == "Keys")
         {
@@ -155,7 +157,7 @@ public class Agent : MonoBehaviour
             keyAmount.text = "Keys: " + keys;
             keyObjects.Remove(collision.gameObject);
             Destroy(collision.gameObject);
-            NotifyObservers();
+            NotifyObservers(collision.gameObject);
         }
 
         if(collision.gameObject.tag == "Door")
@@ -168,49 +170,31 @@ public class Agent : MonoBehaviour
             }
 
         }
-
-        if(collision.gameObject.tag == "Enemies")
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        }
-
-        if(collision.gameObject.tag == "Walls")
-        {
-            if(Input.GetKey(KeyCode.LeftArrow))
-            {
-                transform.Translate(speed * Time.deltaTime, 0, 0);
-                Debug.Log("Left");
-            }
-            if(Input.GetKey(KeyCode.RightArrow))
-            {
-                transform.Translate(-speed * Time.deltaTime, 0, 0);
-                Debug.Log("Right");
-            }
-            if(Input.GetKey(KeyCode.UpArrow))
-            {
-                transform.Translate(0, -speed * Time.deltaTime, 0);
-                Debug.Log("Up");
-            }
-            if(Input.GetKey(KeyCode.DownArrow))
-            {
-                transform.Translate(0, speed * Time.deltaTime, 0);
-                Debug.Log("Down");
-            }
-        }
     }
 
-    private bool AllKeysCollected()
+    protected bool AllKeysCollected()
     {
         // Check if all keys have been collected
         int totalKeysCollected = 0;
-        Agent[] agents = Object.FindObjectsByType<Agent>(FindObjectsSortMode.None);
-        foreach (Agent agent in agents)
+        BFSAgent[] BFSAgents = Object.FindObjectsByType<BFSAgent>(FindObjectsSortMode.None);
+        foreach (BFSAgent agent in BFSAgents)
         {
             totalKeysCollected += agent.keys;
         }
-        Player[] player = Object.FindObjectsByType<Player>(FindObjectsSortMode.None);
-        totalKeysCollected += player[0].keys;
-        return totalKeysCollected >= keyObjects.Count;
+
+        AStarAgent[] aStarAgents = Object.FindObjectsByType<AStarAgent>(FindObjectsSortMode.None);
+        foreach (AStarAgent agent in aStarAgents)
+        {
+            totalKeysCollected += agent.keys;
+        }
+
+        Player[] players = Object.FindObjectsByType<Player>(FindObjectsSortMode.None);
+        foreach (Player player in players)
+        {
+            totalKeysCollected += player.keys;
+        }
+
+        return totalKeysCollected >= FindFirstObjectByType<GenerateMaze>().numKeys;
     }
 
     public void AddObserver(IKeyObserver observer)
@@ -223,11 +207,11 @@ public class Agent : MonoBehaviour
         keyObservers.Remove(observer);
     }
 
-    private void NotifyObservers()
+    private void NotifyObservers(GameObject collision)
     {
         foreach (var observer in keyObservers)
         {
-            observer.OnKeyCollected(keyObjects);
+            observer.OnKeyCollected(collision);
         }
     }
 }

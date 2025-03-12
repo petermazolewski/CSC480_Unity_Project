@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Collections;
+using System.Collections.Generic;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IKeyObserver
 {
     public int keys = 0;
     public float speed = 20.0f;
@@ -20,6 +22,8 @@ public class Player : MonoBehaviour
 
     private GenerateMaze generateMaze;
 
+    private List<IKeyObserver> keyObservers = new List<IKeyObserver>();
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -27,6 +31,18 @@ public class Player : MonoBehaviour
         timerText.text = "P1 Time: 0.00";
         keyAmount.text = "Keys: 0"; // Set initial key count to 0
         generateMaze = FindAnyObjectByType<GenerateMaze>(); // Find the GenerateMaze instance
+
+        AStarAgent obsa = FindAnyObjectByType<AStarAgent>();
+        if (obsa != null)
+        {
+            AddObserver(obsa);
+        }
+
+        BFSAgent obsbfs = FindAnyObjectByType<BFSAgent>();
+        if (obsbfs != null)
+        {
+            AddObserver(obsbfs);
+        }
     }
 
     // Update is called once per frame
@@ -98,6 +114,7 @@ public class Player : MonoBehaviour
             keys++;
             keyAmount.text = "Key: " + keys;
             Destroy(collision.gameObject);
+            NotifyObservers(collision.gameObject);
         }
 
         // Door interaction (exit)
@@ -115,12 +132,6 @@ public class Player : MonoBehaviour
             {
                 Debug.Log("Collect more keys to open the door!");
             }
-        }
-
-        // Collision with enemies (restart the level)
-        if (collision.gameObject.tag == "Enemies")
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
         // Collision with walls (prevent player from passing through)
@@ -155,5 +166,28 @@ public class Player : MonoBehaviour
         timerText.text = "P1 Time: 0.00"; // Reset timer UI
         keyAmount.text = "Key: 0"; // Set initial key count to 0
         playerReachedExit = false; 
+    }
+
+    public void OnKeyCollected(GameObject collision)
+    {
+        Debug.Log("Player on key collected");
+    }
+
+    public void AddObserver(IKeyObserver observer)
+    {
+        keyObservers.Add(observer);
+    }
+
+    public void RemoveObserver(IKeyObserver observer)
+    {
+        keyObservers.Remove(observer);
+    }
+
+    private void NotifyObservers(GameObject collision)
+    {
+        foreach (var observer in keyObservers)
+        {
+            observer.OnKeyCollected(collision);
+        }
     }
 }
