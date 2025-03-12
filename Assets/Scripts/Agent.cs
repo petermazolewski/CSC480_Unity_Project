@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 public class Agent : MonoBehaviour
 {
     public int keys = 0;
-    public float speed = 17.0f;
+    public float speed = 14.0f;
 
     public int requiredKeys = 3; //number of keys required to open the door
 
@@ -53,7 +53,7 @@ public class Agent : MonoBehaviour
         keyObjects = FindFirstObjectByType<GenerateMaze>().GetSpawnedKeys();
         currentRoom = GetCurrentRoom();
 
-        Pathfinding pathfindingObserver = FindObjectOfType<Pathfinding>();  // Replace Pathfinding with your class
+        Pathfinding pathfindingObserver = FindAnyObjectByType<Pathfinding>();  // Replace Pathfinding with your class
 
         // Register the observer with the Agent
         if (pathfindingObserver != null)
