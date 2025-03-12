@@ -250,7 +250,7 @@ public class GenerateMaze : MonoBehaviour
     private void SpawnKeys()
     {
         HashSet<Vector2Int> usedPositions = new HashSet<Vector2Int>();
-        for(int i = 0; i < totalKeysRequired; i++)
+        for(int i = 0; i < 9; i++)
         {
             int x, y;
             do

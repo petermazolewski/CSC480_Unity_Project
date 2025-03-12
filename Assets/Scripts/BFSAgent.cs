@@ -28,9 +28,11 @@ public class BFSAgent : Agent
             timerRunning = true; // Start the timer when agent starts moving
         }
 
-        path = Pathfinding.FindPathBFS(currentRoom, doorRoom, rooms, keyObjects, 10, 15);
+        // Pass 3 as maxKeys to only look for the closest 3 keys
+        path = Pathfinding.FindPathBFS(currentRoom, doorRoom, rooms, keyObjects, 10, 15, 3);
         pathIndex = 0;
     }
+
 
     override public void ResetAgent()
     {

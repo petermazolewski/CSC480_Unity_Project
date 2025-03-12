@@ -35,6 +35,8 @@ public class Agent : MonoBehaviour
     protected bool timerRunning = false;
 
     public static bool keysCollected = false;
+
+    private List<IKeyObserver> keyObservers = new List<IKeyObserver>();
     
     protected virtual void Start()
     {
@@ -50,11 +52,19 @@ public class Agent : MonoBehaviour
         rooms = FindFirstObjectByType<GenerateMaze>().GetRooms();
         keyObjects = FindFirstObjectByType<GenerateMaze>().GetSpawnedKeys();
         currentRoom = GetCurrentRoom();
+
+        Pathfinding pathfindingObserver = FindObjectOfType<Pathfinding>();  // Replace Pathfinding with your class
+
+        // Register the observer with the Agent
+        if (pathfindingObserver != null)
+        {
+            AddObserver(pathfindingObserver);
+        }
     }
 
     protected virtual void Update()
     {   
-        if (AllKeysCollected())
+        if (keys >= requiredKeys || AllKeysCollected())
         {
             keysCollected = true;
             exiting = true;
@@ -143,7 +153,9 @@ public class Agent : MonoBehaviour
             Debug.Log("Key HIT!!!");
             keys++;
             // keyAmount.text = "Keys: " + keys;
+            keyObjects.Remove(collision.gameObject);
             Destroy(collision.gameObject);
+            NotifyObservers();
         }
 
         if(collision.gameObject.tag == "Door")
@@ -199,6 +211,24 @@ public class Agent : MonoBehaviour
         Player[] player = Object.FindObjectsByType<Player>(FindObjectsSortMode.None);
         totalKeysCollected += player[0].keys;
         return totalKeysCollected >= keyObjects.Count;
+    }
+
+    public void AddObserver(IKeyObserver observer)
+    {
+        keyObservers.Add(observer);
+    }
+
+    public void RemoveObserver(IKeyObserver observer)
+    {
+        keyObservers.Remove(observer);
+    }
+
+    private void NotifyObservers()
+    {
+        foreach (var observer in keyObservers)
+        {
+            observer.OnKeyCollected(keyObjects);
+        }
     }
 }
 
